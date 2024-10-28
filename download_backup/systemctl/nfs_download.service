@@ -1,0 +1,20 @@
+[Unit]
+Description=Backup NFS
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+[Service]
+User=mcloud
+ExecStart=/bin/bash /home/mcloud/BACKUP_PROD/download_backup/scripts/nfs_download.sh
+Restart=on-failure
+RestartSec=30s
+# StandardOutput=syslog
+# StandardError=syslog
+
+# Resource control settings (adjust as needed)
+# MemoryLimit=1G
+# CPUQuota=50%
+# CPUShares=512
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup NFS Timer
+
+[Timer]
+Unit=nfs_download.service
+OnCalendar=23:30:00
+
+[Install]
+WantedBy=timers.target

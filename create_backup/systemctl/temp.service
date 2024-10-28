@@ -1,0 +1,20 @@
+[Unit]
+Description=Backup NFS
+#StartLimitIntervalSec=300s
+#StartLimitBurst=3
+
+[Service]
+#User=mcloud
+ExecStart=/bin/bash /home/user/gavrilov/create_backup-main/scripts/nfs_create_backup.sh
+Restart=on-failure
+RestartSec=20min
+# StandardOutput=syslog
+# StandardError=syslog
+
+# Resource control settings (adjust as needed)
+# MemoryLimit=1G
+# CPUQuota=50%
+# CPUShares=512
+
+[Install]
+WantedBy=multi-user.target
