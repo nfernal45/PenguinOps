@@ -10,11 +10,7 @@ BACKUP_RETENTION_DAYS=30
 ARCHIVE_NAME="nfs"
 CURRENT_DATE=$(date +"%Y-%m-%d")
 
-# Проверяем существование директории для бэкапов и создаем ее при необходимости
 mkdir -p "/$BACKUP_DEST"
-
-# Копируем архив
-
 
 # Проверяем успешность создания архива
 if scp -r "$SSH_LOGIN"@"$REMOTE_IP_ADDR":/"$REMOTE_SOURCE_DIR"/"$ARCHIVE_NAME"-"$CURRENT_DATE" /"$BACKUP_DEST"/; then
