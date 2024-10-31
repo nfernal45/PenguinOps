@@ -15,14 +15,14 @@ DISK_USAGE_THRESHOLD=85
 
 E_NOTFREESPACE=47 # Недостаточно свободного места для бэкапа
 E_NOTCREATEDIR=25
+E_CHECKFILE=44
+E_DOWNLOAD=21
 
 mkdir -p "$BACKUP_DEST" || exit $E_NOTCREATEDIR
 
 # Проверка дискового пространства
 DISK_USAGE=$(df / | grep $BACKUP_DEST | awk '{ print $5 }' | sed 's/%//g')
-if [ ${DISK_USAGE} -gt ${DISK_USAGE_THRESHOLD} ]; then
-    exit $E_NOTFREESPACE
-fi
+[[ ${DISK_USAGE} -gt ${DISK_USAGE_THRESHOLD} ]] || exit $E_NOTFREESPACE
 
 # Проверяем успешность создания архива
 if scp -r "$SSH_LOGIN"@"$REMOTE_IP_ADDR":"$REMOTE_SOURCE_DIR"/"$BACKUP_FILE" /"$BACKUP_DEST"/; then
@@ -31,24 +31,20 @@ if scp -r "$SSH_LOGIN"@"$REMOTE_IP_ADDR":"$REMOTE_SOURCE_DIR"/"$BACKUP_FILE" /"$
     sed -i "s!$REMOTE_SOURCE_DIR/!/$BACKUP_DEST/!" "$BACKUP_FILE_PATH"/"$BACKUP_FILE".md5
 
     # Проверяем существование файла для проверки целостности
-    if [ -e "$BACKUP_DEST"/"$BACKUP_FILE"/"$BACKUP_FILE".md5 ]; then     
+    if [ -e "$BACKUP_FILE_PATH/$BACKUP_FILE.md5" ]; then     
         
-
         # Проверяем целостность архива
-        if md5sum --quiet -c /"$BACKUP_DEST"/"$BACKUP_FILE"/"$BACKUP_FILE".md5; then       
-            echo "$CURRENT_DATE arhive Check OK!" >> $BACKUP_DEST/$ARCHIVE_NAME-"$CURRENT_DATE"/check.log
+        if md5sum --quiet -c "$BACKUP_DEST/$BACKUP_FILE/$BACKUP_FILE.md5"; then       
+            echo "$CURRENT_DATE arhive Check OK!" >> "$BACKUP_DEST/$ARCHIVE_NAME-$CURRENT_DATE/check.log"
 
             # Удаляем старые бэкапы по дате    
-            DATE_BEFORE=$(date -d "-$BACKUP_RETENTION_DAYS days" +"%Y-%m-%d")
+            DATE_BEFORE=$(date -d "-$BACKUP_RETENTION_DAYS days +%Y-%m-%d")
             find "$BACKUP_DEST" -type d -name "$ARCHIVE_NAME-$DATE_BEFORE" -exec rm -r {} \;
-        else
-            echo "$CURRENT_DATE arhive Check is NOT OK!" >> "$BACKUP_FILE_PATH"/check.log
-            exit 1
         fi
     else
         echo "$CURRENT_DATE check file not found" >> "$BACKUP_FILE_PATH"/check.log
+        exit $E_CHECKFILE
     fi
 else
-    echo "Произошла ошибка при скачивании архива $CURRENT_DATE"
-    exit 1
+    exit $E_DOWNLOAD
 fi
