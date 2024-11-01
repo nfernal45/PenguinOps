@@ -29,6 +29,7 @@ create_backup()
         ARCHIVE_PATH="${BACKUP_DIR}/${TARGET_DIR}-${CURRENT_DATE}.tar.gz"
         LOG_PATH="${BACKUP_DIR}/logs/verbose.log"
         MD5_PATH="${BACKUP_DIR}/${TARGET_DIR}-${CURRENT_DATE}.md5"
+        PURGE_DATE=$(date -d "-${BACKUP_RETENTION_DAYS} days" +"%Y-%m-%d")
 
         mkdir -p "${BACKUP_DIR}/logs"
         tar -v -czf "${ARCHIVE_PATH}" "${DIR}" > "${LOG_PATH}" && \
