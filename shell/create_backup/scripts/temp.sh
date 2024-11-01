@@ -3,20 +3,20 @@
 set -uxo pipefail
 
 CURRENT_DATE=$(date +"%Y-%m-%d")
-BACKUP_DEST="./dest"
+BACKUP_DEST="${PWD}/dest"
 TARGET_DIRS="$*"
 BACKUP_RETENTION_DAYS=3
 DISK_USAGE_THRESHOLD=85
 
 E_NOTFREESPACE=47 # Недостаточно свободного места для бэкапа
-E_NOTDIR=59 # Такой директории нет
+E_NOTDIR=59       # Такой директории нет
 E_BADARGUMENT=88
 
-[[ $# -lt 1 ]] || { echo "Нечего бэкапить" ; exit $E_BADARGUMENT ; }
+[[ $# -gt 0 ]] || { echo "Нечего бэкапить" ; exit $E_BADARGUMENT ; }
 
 # Проверка дискового пространства
-DISK_USAGE=$(df / | grep $BACKUP_DEST | awk '{ print $5 }' | sed 's/%//g')
-[[ ${DISK_USAGE} -gt ${DISK_USAGE_THRESHOLD} ]] || exit $E_NOTFREESPACE
+DISK_USAGE=$(df "$BACKUP_DEST" | awk 'NR == 2{ print $5 }' | sed 's/%//g')
+[[ ${DISK_USAGE} -lt ${DISK_USAGE_THRESHOLD} ]] || exit $E_NOTFREESPACE
 
 create_backup()  
 {
