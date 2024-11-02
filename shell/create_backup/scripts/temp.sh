@@ -1,9 +1,9 @@
 #!/bin/bash
 
-set -uxo pipefail
+set -euxo pipefail
 
 CURRENT_DATE=$(date +"%Y-%m-%d")
-BACKUP_DEST="${PWD}/dest"
+BACKUP_DEST="/tmp/dest"
 TARGET_DIRS="$*"
 BACKUP_RETENTION_DAYS=3
 DISK_USAGE_THRESHOLD=85
